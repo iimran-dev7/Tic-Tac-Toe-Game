@@ -18,6 +18,11 @@ let normalPlayScores = { player1: 0, player2: 0 }; // Track normal play scores
 // Add this at the beginning of the file, after the existing variables
 const transitionDuration = 400; // milliseconds
 
+// Store event listeners references
+let cellEventListeners = new Map();
+let restartEventListener = null;
+let endGameEventListener = null;
+
 // Page Navigation
 document.querySelector('.start-btn').addEventListener('click', () => showPage('setup'));
 document.querySelector('.play-btn').addEventListener('click', startGame);
@@ -25,6 +30,9 @@ document.querySelector('.play-btn').addEventListener('click', startGame);
 function showPage(page) {
     const currentPageElement = document.querySelector(`#${currentPage}-page`);
     const nextPageElement = document.querySelector(`#${page}-page`);
+    
+    // Remove existing event listeners before transition
+    removeAllEventListeners();
     
     // Fade out current page
     currentPageElement.classList.add('fade-out');
@@ -41,6 +49,11 @@ function showPage(page) {
         });
         
         currentPage = page;
+
+        // Attach new event listeners after page transition if on game page
+        if (page === 'game') {
+            attachEventListeners();
+        }
     }, transitionDuration);
 }
 
@@ -136,6 +149,59 @@ function updateScoreDisplay() {
         `Matches: ${scores.player1 + scores.player2 + draws}/${seriesLength} (Draws: ${draws})`;
 }
 
+// Function to attach event listeners
+function attachEventListeners() {
+    // Attach cell event listeners
+    document.querySelectorAll('.cell').forEach(cell => {
+        const listener = () => handleCellClick(cell);
+        cellEventListeners.set(cell, listener);
+        cell.addEventListener('click', listener);
+    });
+
+    // Attach restart button listener
+    const restartButton = document.getElementById('restart');
+    if (restartButton) {
+        restartEventListener = () => {
+            if (gameMode === 'series') {
+                resetSeries();
+            } else {
+                initializeGame();
+            }
+        };
+        restartButton.addEventListener('click', restartEventListener);
+    }
+
+    // Attach end game button listener
+    const endGameButton = document.getElementById('end-game');
+    if (endGameButton) {
+        endGameEventListener = () => endGame();
+        endGameButton.addEventListener('click', endGameEventListener);
+    }
+}
+
+// Function to remove all event listeners
+function removeAllEventListeners() {
+    // Remove cell event listeners
+    cellEventListeners.forEach((listener, cell) => {
+        cell.removeEventListener('click', listener);
+    });
+    cellEventListeners.clear();
+
+    // Remove restart button listener
+    const restartButton = document.getElementById('restart');
+    if (restartButton && restartEventListener) {
+        restartButton.removeEventListener('click', restartEventListener);
+        restartEventListener = null;
+    }
+
+    // Remove end game button listener
+    const endGameButton = document.getElementById('end-game');
+    if (endGameButton && endGameEventListener) {
+        endGameButton.removeEventListener('click', endGameEventListener);
+        endGameEventListener = null;
+    }
+}
+
 // Game Logic
 document.querySelectorAll('.cell').forEach(cell => {
     cell.addEventListener('click', () => handleCellClick(cell));
@@ -148,6 +214,103 @@ document.getElementById('restart').addEventListener('click', () => {
         initializeGame();
     }
 });
+
+// Add End Game functionality
+document.getElementById('end-game').addEventListener('click', endGame);
+
+function endGame() {
+    // Prevent multiple clicks while transitioning
+    const endGameButton = document.getElementById('end-game');
+    if (!endGameButton || endGameButton.disabled) return;
+    endGameButton.disabled = true;
+
+    // Clear any ongoing timers
+    const statusElement = document.getElementById('status');
+    if (statusElement) statusElement.textContent = '';
+    if (window[Symbol.for('countdownInterval')]) {
+        clearInterval(window[Symbol.for('countdownInterval')]);
+    }
+
+    // Remove all event listeners
+    removeAllEventListeners();
+
+    // Reset all game state
+    gameBoard = ['', '', '', '', '', '', '', '', ''];
+    gameActive = false;
+    currentPlayer = 'X';
+    gameMode = 'normal';
+    seriesLength = 3;
+    scores = { player1: 0, player2: 0 };
+    draws = 0;
+    normalPlayScores = { player1: 0, player2: 0 };
+
+    // Reset player data
+    players = {
+        player1: { name: '', symbol: 'X' },
+        player2: { name: '', symbol: 'O' }
+    };
+
+    // Reset UI elements
+    document.querySelectorAll('.cell').forEach(cell => {
+        cell.textContent = '';
+        cell.classList.remove('winner-animation', 'filled');
+        cell.removeAttribute('data-symbol');
+    });
+
+    // Remove winner classes and reset scores
+    document.querySelectorAll('.player-score').forEach(el => {
+        el.classList.remove('series-winner');
+        el.querySelector('span:last-child').textContent = '0';
+    });
+
+    // Reset series display if visible
+    const seriesInfo = document.querySelector('.series-info');
+    if (seriesInfo) {
+        seriesInfo.style.display = 'none';
+    }
+
+    // Reset player info displays
+    document.querySelector('#player1-info span').textContent = '';
+    document.querySelector('#player2-info span').textContent = '';
+    document.querySelector('#player1-info').classList.remove('active-player');
+    document.querySelector('#player2-info').classList.remove('active-player');
+
+    // Reset player setup form
+    const player1Input = document.getElementById('player1-name');
+    const player2Input = document.getElementById('player2-name');
+    if (player1Input) player1Input.value = '';
+    if (player2Input) player2Input.value = '';
+
+    document.querySelectorAll('.symbol-btn').forEach(btn => {
+        btn.classList.remove('selected');
+    });
+    const defaultSymbolBtn = document.querySelector('.symbol-btn[data-symbol="X"]');
+    if (defaultSymbolBtn) defaultSymbolBtn.classList.add('selected');
+    
+    const player2Symbol = document.getElementById('player2-symbol');
+    if (player2Symbol) player2Symbol.textContent = 'O';
+
+    // Reset match type selection
+    document.querySelectorAll('.match-btn').forEach(btn => {
+        btn.classList.remove('selected');
+    });
+    const normalMatchBtn = document.querySelector('.match-btn[data-type="normal"]');
+    if (normalMatchBtn) normalMatchBtn.classList.add('selected');
+    
+    const seriesOptions = document.querySelector('.series-options');
+    if (seriesOptions) seriesOptions.style.display = 'none';
+
+    // Navigate back to landing page
+    showPage('landing');
+
+    // Re-enable the button after transition
+    setTimeout(() => {
+        if (endGameButton) {
+            endGameButton.disabled = false;
+        }
+        gameActive = true;
+    }, transitionDuration + 100); // Add small buffer to ensure transition is complete
+}
 
 function handleCellClick(cell) {
     const index = cell.dataset.cellIndex;
@@ -298,14 +461,15 @@ function isSeriesDecided() {
 }
 
 function handleSeriesWin(winner) {
-    scores[winner]++;
+    const currentWinner = winner;
+    scores[currentWinner]++;
     updateScoreDisplay();
     
     const winsNeeded = Math.ceil(seriesLength / 2);
-    const winnerName = winner === 'player1' ? players.player1.name : players.player2.name;
+    const winnerName = currentWinner === 'player1' ? players.player1.name : players.player2.name;
 
-    if (scores[winner] >= winsNeeded || isSeriesDecided()) {
-        handleSeriesEnd();
+    if (scores[currentWinner] >= winsNeeded || isSeriesDecided()) {
+        handleSeriesEnd(currentWinner);
     } else {
         document.getElementById('status').textContent = 
             `${winnerName} wins this game! (${scores.player1}-${scores.player2}, Draws: ${draws})`;
@@ -326,8 +490,7 @@ function handleSeriesDraw() {
     }
 }
 
-function handleSeriesEnd() {
-    const winner = scores.player1 > scores.player2 ? 'player1' : 'player2';
+function handleSeriesEnd(winner) {
     const winnerName = winner === 'player1' ? players.player1.name : players.player2.name;
     
     let resultMessage = `Series Complete!\n`;
@@ -337,12 +500,12 @@ function handleSeriesEnd() {
     
     if (scores.player1 !== scores.player2) {
         resultMessage += `${winnerName} wins the series!`;
+        document.querySelector(`.${winner}-score`).parentElement.classList.add('series-winner');
     } else {
         resultMessage += `Series ends in a draw!`;
     }
     
     document.getElementById('status').textContent = resultMessage;
-    document.querySelector(`.${winner}-score`).parentElement.classList.add('series-winner');
     gameActive = false;
     celebrateWin();
 }
@@ -355,4 +518,13 @@ function resetSeries() {
     updateScoreDisplay();
     initializeGame();
 }
+
+// Initialize event listeners when the page loads
+document.addEventListener('DOMContentLoaded', () => {
+    // Attach initial event listeners for the landing page
+    const startButton = document.querySelector('.start-btn');
+    if (startButton) {
+        startButton.addEventListener('click', () => showPage('setup'));
+    }
+});
 
