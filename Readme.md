@@ -1,40 +1,36 @@
 
-🎮 Tic Tac Toe Game
+# 🎮 Tic Tac Toe Game  
 
-A classic Tic Tac Toe game built with HTML, CSS, and JavaScript. This project provides a smooth and interactive user experience where two players can compete in Normal Mode or Series Mode with a beautifully designed interface.
+A **classic Tic Tac Toe game** built with **HTML, CSS, and JavaScript**. This project provides a **smooth and interactive user experience**, allowing two players to compete in **Normal Mode** or **Series Mode** with a beautifully designed interface.  
 
+## ✨ Features  
 
----
-
-✨ Features
-
-✅ Normal Play Mode - Play a single game of Tic Tac Toe against a friend
-✅ Series Mode - Play multiple rounds (Best of 3 or Best of 5) to determine the overall winner
-✅ Player Name Input - Players can enter their names before starting the game
-✅ Dynamic Symbol Selection - Players automatically get assigned X or O
-✅ Game Win Detection - The game detects a win, loss, or draw and displays the result 🎉
-✅ Restart & End Game Options - Players can restart the game or exit at any time 🔁
-✅ Smooth UI and Animations - Elegant transitions and responsive design for a great experience 💻📱
-
+✅ **Normal Play Mode** - Play a single game of Tic Tac Toe against a friend  
+✅ **Series Mode** - Play multiple rounds (Best of 3 or Best of 5) to determine the overall winner  
+✅ **Player Name Input** - Players can enter their names before starting the game  
+✅ **Dynamic Symbol Selection** - Players automatically get assigned **X** or **O**  
+✅ **Game Win Detection** - The game detects a **win, loss, or draw** and displays the result 🎉  
+✅ **Restart & End Game Options** - Players can restart the game or return to the main menu 🔄  
+✅ **Smooth UI & Animations** - Elegant transitions and responsive design for all devices 💻📱  
 
 ---
 
-🚀 Upcoming Features
+## 🚀 Upcoming Features  
 
-🛠 Single-Player Mode - Play against an AI-powered computer opponent
-🛠 Leaderboard System - Track wins and scores across multiple sessions
-🛠 Custom Themes - Players can choose from different board themes and color schemes 🎨
-🛠 Sound Effects - Add engaging sound effects for every move and win 🔊
-🛠 Save Progress - Store player scores using local storage
-
+🛠 **Single-Player Mode** - Play against an AI-powered computer opponent 🤖  
+🛠 **Leaderboard System** - Track wins and scores across multiple sessions 🏆  
+🛠 **Custom Themes** - Players can choose different board themes and colors 🎨  
+🛠 **Sound Effects** - Add engaging sound effects for every move and win 🔊  
+🛠 **Save Progress** - Store player scores using local storage 💾  
 
 ---
 
-🛠 Installation
+## 🛠 Installation  
 
-1️⃣ Clone the Repository
-
+### **1️⃣ Clone the Repository**  
+```bash
 git clone https://github.com/iimran-dev7/Tic-Tac-Toe-Game.git
+
 cd tic-tac-toe-game
 
 2️⃣ Open the Game
