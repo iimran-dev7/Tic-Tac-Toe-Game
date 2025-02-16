@@ -1,0 +1,748 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "Poppins", sans-serif;
+  }
+  
+  /* Update color variables */
+  :root {
+    --bg-color: #FFFFFF;
+    --primary-color: #007BFF;
+    --grid-color: #D3D3D3;
+    --x-color: #DC3545;
+    --o-color: #28A745;
+    --win-color: #FFC107;
+    --cell-size-desktop: 120px;
+    --cell-size-tablet: 100px;
+    --cell-size-mobile: 80px;
+  }
+  
+  body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0; /* Added margin: 0; */
+    background: var(--bg-color);
+    color: var(--text-color);
+    transition: background 0s ease;
+  }
+  
+  .page {
+    text-align: center;
+    transform: translateY(0);
+    transition: all 0.4s ease;
+    opacity: 1;
+    width: 100%;
+    max-width: 1200px;
+    padding: 1rem;
+    margin: 0 auto;
+  }
+  
+  #game-page {
+    position: relative;
+    min-height: 100vh;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background-color: white;
+    padding: 2rem 1rem;
+    box-sizing: border-box;
+  }
+  
+  .page.fade-out {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  
+  /* Landing Page Styles */
+  .game-title {
+    font-size: clamp(2.5rem, 8vw, 4rem);
+    color: var(--primary-color);
+    margin-bottom: 1.5rem;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+    animation: titleFloat 3s ease-in-out infinite;
+  }
+  
+  @keyframes titleFloat {
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-10px);
+    }
+  }
+  
+  .tagline {
+    font-size: 1.3rem;
+    color: var(--primary-color);
+    opacity: 0.8;
+    margin-bottom: 2.5rem;
+    opacity: 0;
+    animation: fadeIn 1s ease forwards 0.5s;
+  }
+  
+  .start-btn,
+  .play-btn {
+    padding: 1rem 2.5rem;
+    font-size: 1.3rem;
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 50px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 5px 15px rgba(0, 123, 255, 0.3);
+  }
+  
+  .start-btn:hover,
+  .play-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(0, 123, 255, 0.4);
+  }
+  
+  .pulse {
+    animation: pulse 2s infinite;
+  }
+  
+  @keyframes pulse {
+    0% {
+      transform: scale(1);
+    }
+    50% {
+      transform: scale(1.05);
+      box-shadow: 0 8px 25px rgba(46, 204, 113, 0.5);
+    }
+    100% {
+      transform: scale(1);
+    }
+  }
+  
+  /* Setup Page Styles */
+  .player-setup {
+    display: flex;
+    flex-direction: row;
+    gap: 2.5rem;
+    margin-bottom: 2.5rem;
+    opacity: 0;
+    animation: slideIn 0.5s ease forwards;
+  }
+  
+  @keyframes slideIn {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  .player-form {
+    flex: 1;
+    padding: 1.5rem;
+    background: rgba(236, 240, 241, 0.5);
+    border-radius: 15px;
+    transition: transform 0.3s ease;
+  }
+  
+  .player-form:hover {
+    transform: translateY(-5px);
+  }
+  
+  .player-form input {
+    width: 100%;
+    padding: 0.8rem;
+    margin: 1rem 0;
+    border: 2px solid #bdc3c7;
+    border-radius: 10px;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+  }
+  
+  .player-form input:focus {
+    border-color: #3498db;
+    box-shadow: 0 0 10px rgba(52, 152, 219, 0.2);
+    outline: none;
+  }
+  
+  .symbol-btn {
+    padding: 0.8rem 1.5rem;
+    font-size: 1.2rem;
+    border: 2px solid var(--primary-color);
+    background: white;
+    cursor: pointer;
+    border-radius: 10px;
+    transition: all 0.3s ease;
+    margin: 0 0.5rem;
+    color: var(--primary-color);
+  }
+  
+  .symbol-btn:hover,
+  .symbol-btn.selected {
+    background: var(--primary-color);
+    color: var(--bg-color);
+    box-shadow: 0 5px 15px rgba(52, 152, 219, 0.3);
+  }
+  
+  /* Game Page Styles */
+  #board {
+    display: grid;
+    grid-template-columns: repeat(3, var(--cell-size-desktop));
+    gap: 5px;
+    margin: 2rem auto;
+    background: var(--grid-color);
+    padding: 5px;
+    width: fit-content;
+    max-width: 100%; /* Added max-width */
+    opacity: 0;
+    animation: fadeIn 0.5s ease forwards;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    border-radius: 10px;
+  }
+  
+  .cell {
+    width: 100%;
+    aspect-ratio: 1 / 1; /* Added aspect-ratio */
+    background: var(--bg-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 3.5rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: none;
+    position: relative;
+    color: var(--text-color);
+    border-radius: 5px;
+    box-shadow: 0 2px 5px var(--box-shadow);
+  }
+  
+  .cell[data-cell-index] {
+    border: none;
+  }
+  
+  .cell:hover {
+    background: #ffffff;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  }
+  
+  .cell::before {
+    content: attr(data-symbol);
+    position: absolute;
+    opacity: 0;
+    transform: scale(0.5);
+    transition: all 0.2s ease;
+  }
+  
+  .cell[data-symbol="X"]::before {
+    content: "X";
+    color: var(--x-color);
+  }
+  
+  .cell[data-symbol="O"]::before {
+    content: "O";
+    color: var(--o-color);
+  }
+  
+  .cell.filled::before {
+    opacity: 1;
+    transform: scale(1);
+  }
+  
+  .player-info {
+    display: flex;
+    justify-content: center;
+    gap: 4rem;
+    margin-bottom: 2rem;
+    color: var(--primary-color);
+  }
+  
+  #player1-info,
+  #player2-info {
+    padding: 1rem 2rem;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    font-size: 1.2rem;
+    font-weight: 500;
+    border: none;
+  }
+  
+  #status {
+    font-size: 1.8rem;
+    margin: 1.5rem 0;
+    color: var(--text-color);
+    font-weight: bold;
+    opacity: 0;
+    transform: translateY(20px);
+    animation: slideUp 0.5s ease forwards;
+  }
+  
+  @keyframes slideUp {
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  .winner-animation {
+    animation: winnerPulse 1.5s infinite;
+  }
+  
+  @keyframes winnerPulse {
+    0% {
+      box-shadow: 0 0 10px var(--win-color);
+    }
+    50% {
+      box-shadow: 0 0 20px var(--win-color);
+      background: rgba(255, 193, 7, 0.1);
+    }
+    100% {
+      box-shadow: 0 0 10px var(--win-color);
+    }
+  }
+  
+  #restart {
+    background: var(--primary-color);
+    color: var(--bg-color);
+    padding: 0.8rem 2rem;
+    border: none;
+    border-radius: 50px;
+    cursor: pointer;
+    font-size: 1.1rem;
+    transition: all 0.3s ease;
+    box-shadow: 0 5px 15px rgba(0, 123, 255, 0.3);
+  }
+  
+  #restart:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(0, 123, 255, 0.4);
+  }
+  
+  .game-controls {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    margin-bottom: 2rem;
+  }
+  
+  #end-game {
+    background: #dc3545;
+    color: var(--bg-color);
+    padding: 0.8rem 2rem;
+    border: none;
+    border-radius: 50px;
+    cursor: pointer;
+    font-size: 1.1rem;
+    transition: all 0.3s ease;
+    box-shadow: 0 5px 15px rgba(220, 53, 69, 0.3);
+  }
+  
+  #end-game:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(220, 53, 69, 0.4);
+  }
+  
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+  
+  .active-player {
+    transform: scale(1.05);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+    background: var(--primary-color) !important;
+    color: var(--bg-color) !important;
+  }
+  
+  /* Add this to your CSS file */
+  .developer-info {
+    position: absolute;
+    bottom: 1rem; /* Updated bottom position */
+    left: 0;
+    right: 0;
+    text-align: center;
+    font-size: 1rem;
+    color: var(--text-color);
+  }
+  
+  .developer-name {
+    color: var(--primary-color);
+    font-weight: 600;
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    padding-bottom: 2px;
+    text-decoration: none;
+    cursor: pointer;
+    transition: color 0.3s ease;
+    gap: 2px;
+  }
+  
+  .developer-name::before {
+    display: inline-block;
+    vertical-align: middle;
+    margin-right: 1px;
+  }
+  
+  .developer-name:hover {
+    color: var(--x-color);
+  }
+  
+  .developer-name::after {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background: linear-gradient(to right, var(--primary-color), var(--win-color));
+    transition: width 0.3s ease;
+  }
+  
+  .developer-name:hover::after {
+    width: 100%;
+  }
+  
+  /* Update the landing page container to accommodate the footer */
+  #landing-page {
+    position: relative;
+    padding-bottom: 4rem;
+  }
+  
+  /* Add these new styles */
+  .match-type-selector {
+    margin-bottom: 2rem;
+    padding: 1rem;
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 10px;
+  }
+  
+  .match-buttons {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    margin: 1rem 0;
+  }
+  
+  .match-btn {
+    padding: 0.8rem 1.5rem;
+    font-size: 1.1rem;
+    border: 2px solid var(--primary-color);
+    background: white;
+    cursor: pointer;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    color: var(--primary-color);
+  }
+  
+  .match-btn.selected {
+    background: var(--primary-color);
+    color: var(--bg-color);
+    box-shadow: 0 4px 12px rgba(52, 152, 219, 0.2);
+  }
+  
+  .series-options {
+    margin-top: 1rem;
+    padding: 1rem;
+    background: rgba(236, 240, 241, 0.5);
+    border-radius: 8px;
+  }
+  
+  #series-length {
+    padding: 0.5rem 1rem;
+    font-size: 1rem;
+    border: 2px solid #bdc3c7;
+    border-radius: 5px;
+    margin-top: 0.5rem;
+    cursor: pointer;
+    outline: none;
+  }
+  
+  .series-info {
+    background: rgba(255, 255, 255, 0.9);
+    padding: 1rem;
+    border-radius: 10px;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    /* Remove or comment out the border line */
+    /* border: 2px solid var(--primary-color); */
+  }
+  
+  .score-display {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 2rem;
+    margin-top: 0.5rem;
+    font-size: 1.2rem;
+  }
+  
+  .player-score {
+    font-weight: 600;
+    color: var(--primary-color);
+    padding: 0.5rem 1rem;
+    border-radius: 5px;
+    background: rgba(236, 240, 241, 0.5);
+  }
+  
+  .matches-info {
+    color: var(--text-color);
+    font-size: 1rem;
+  }
+  
+  .series-winner {
+    animation: winnerGlow 2s infinite;
+  }
+  
+  @keyframes winnerGlow {
+    0% {
+      box-shadow: 0 0 10px rgba(46, 204, 113, 0.4);
+    }
+    50% {
+      box-shadow: 0 0 20px rgba(46, 204, 113, 0.6);
+    }
+    100% {
+      box-shadow: 0 0 10px rgba(46, 204, 113, 0.4);
+    }
+  }
+  
+  /* Add these new styles */
+  .game-logo {
+    font-size: 2.5rem;
+    color: var(--primary-color);
+    margin-bottom: 1.5rem;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+    opacity: 0;
+    animation: fadeIn 0.5s ease forwards;
+  }
+  
+  #custom-series {
+    margin-top: 1rem;
+  }
+  
+  #custom-length {
+    padding: 0.5rem;
+    width: 200px;
+    font-size: 1rem;
+    border: 2px solid #bdc3c7;
+    border-radius: 5px;
+    text-align: center;
+  }
+  
+  #custom-length:focus {
+    border-color: #3498db;
+    box-shadow: 0 0 10px rgba(52, 152, 219, 0.2);
+    outline: none;
+  }
+  
+  /* Update game page styles */
+  #game-page {
+    position: relative;
+    padding-bottom: 4rem;
+  }
+  
+  #game-page .developer-info {
+    position: absolute;
+    bottom: 1rem;
+    left: 0;
+    right: 0;
+  }
+  
+  /* Add styles for winner overlay */
+  .winner-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: var(--overlay-bg);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    animation: fadeIn 0.3s ease;
+  }
+  
+  .winner-message {
+    background: var(--bg-color);
+    padding: 2rem 3rem;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    text-align: center;
+    animation: popIn 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  }
+  
+  .winner-message h2 {
+    color: var(--primary-color);
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+  }
+  
+  .winner-message p {
+    color: var(--text-color);
+    font-size: 1.5rem;
+    font-weight: 500;
+  }
+  
+  .winner-overlay.fade-out {
+    animation: fadeOut 0.5s ease forwards;
+  }
+  
+  @keyframes popIn {
+    0% {
+      transform: scale(0.5);
+      opacity: 0;
+    }
+    100% {
+      transform: scale(1);
+      opacity: 1;
+    }
+  }
+  
+  @keyframes fadeOut {
+    from {
+      opacity: 1;
+    }
+    to {
+      opacity: 0;
+    }
+  }
+  
+  /* Media Queries */
+  @media screen and (max-width: 768px) {
+    /* Tablet styles */
+    #board {
+        grid-template-columns: repeat(3, var(--cell-size-tablet));
+    }
+
+    .player-setup {
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+
+    .player-info {
+        gap: 2rem;
+    }
+
+    #player1-info, #player2-info {
+        padding: 0.8rem 1.5rem;
+        font-size: 1rem;
+    }
+
+    .cell {
+        font-size: 3rem;
+    }
+
+    .series-info {
+        width: 90%;
+    }
+  }
+  
+  @media screen and (max-width: 480px) {
+    /* Mobile styles */
+    #board {
+        grid-template-columns: repeat(3, var(--cell-size-mobile));
+        gap: 3px;
+        padding: 3px;
+    }
+
+    .game-logo {
+        font-size: 2rem;
+    }
+
+    .tagline {
+        font-size: 1.1rem;
+    }
+
+    .start-btn, .play-btn {
+        padding: 0.8rem 2rem;
+        font-size: 1.1rem;
+    }
+
+    .player-info {
+        gap: 1rem;
+        flex-direction: column;
+    }
+
+    #player1-info, #player2-info {
+        padding: 0.6rem 1rem;
+        font-size: 0.9rem;
+        width: 100%;
+    }
+
+    .cell {
+        font-size: 2.5rem;
+    }
+
+    #status {
+        font-size: 1.4rem;
+    }
+
+    .winner-message {
+        padding: 1.5rem 2rem;
+        width: 90%;
+        margin: 0 1rem;
+    }
+
+    .winner-message h2 {
+        font-size: 2rem;
+    }
+
+    .winner-message p {
+        font-size: 1.2rem;
+    }
+
+    .match-buttons {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .match-btn {
+        width: 100%;
+    }
+
+    .series-info {
+        width: 95%;
+    }
+
+    .score-display {
+        flex-direction: column;
+        gap: 1rem;
+    }
+  }
+  
+  /* Landscape mode for mobile */
+  @media screen and (max-height: 480px) and (orientation: landscape) {
+    .game-title {
+        font-size: 2rem;
+        margin-bottom: 1rem;
+    }
+
+    #board {
+        margin: 1rem auto;
+    }
+
+    .player-info {
+        margin-bottom: 1rem;
+    }
+
+    .developer-info {
+        position: relative;
+        margin-top: 1rem;
+    }
+  }
+  
+  
