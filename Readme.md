@@ -34,7 +34,7 @@ A classic Tic Tac Toe game built with HTML, CSS, and JavaScript. This project pr
 
 1️⃣ Clone the Repository
 
-git clone https://github.com/yourusername/tic-tac-toe-game.git
+git clone https://github.com/iimran-dev7/Tic-Tac-Toe-Game.git
 cd tic-tac-toe-game
 
 2️⃣ Open the Game
